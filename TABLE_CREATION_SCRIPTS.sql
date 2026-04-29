@@ -1,0 +1,34 @@
+-- 1. Tarifeler Tablosu (Paket limitlerini tutar)
+CREATE TABLE TARIFFS (
+    TARIFF_ID NUMBER PRIMARY KEY,
+    TARIFF_NAME VARCHAR2(100) NOT NULL,
+    DATA_LIMIT NUMBER, -- MB cinsinden
+    MIN_LIMIT NUMBER,  -- Dakika cinsinden
+    SMS_LIMIT NUMBER,
+    MONTHLY_FEE NUMBER(10, 2)
+);
+
+-- 2. Müşteriler Tablosu (Kişisel bilgiler ve tarife bağı)
+CREATE TABLE CUSTOMERS (
+    CUSTOMER_ID NUMBER PRIMARY KEY,
+    NAME VARCHAR2(100),
+    CITY VARCHAR2(50),
+    SIGNUP_DATE DATE,
+    TARIFF_ID NUMBER,
+    CONSTRAINT fk_tariff FOREIGN KEY (TARIFF_ID) REFERENCES TARIFFS(TARIFF_ID)
+);
+
+-- 3. Aylık Kullanım İstatistikleri Tablosu
+CREATE TABLE MONTHLY_STATS (
+    STAT_ID NUMBER PRIMARY KEY,
+    CUSTOMER_ID NUMBER,
+    USED_DATA NUMBER,
+    USED_MIN NUMBER,
+    USED_SMS NUMBER,
+    IS_PAID CHAR(1) CHECK (IS_PAID IN ('Y', 'N')), -- Y: Paid, N: Unpaid
+    CONSTRAINT fk_customer FOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMERS(CUSTOMER_ID)
+);
+
+-- Hızlı erişim için Index oluşturma
+CREATE INDEX idx_customer_city ON CUSTOMERS(CITY);
+CREATE INDEX idx_stats_paid ON MONTHLY_STATS(IS_PAID);
